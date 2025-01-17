@@ -1,3 +1,10 @@
+# Helper files
+build_dataset.py
+
+# Redundant data files
+dataset/movies_no_description.csv
+dataset/movies_with_description.csv
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
