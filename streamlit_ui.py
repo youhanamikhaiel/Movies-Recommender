@@ -2,6 +2,7 @@ import streamlit as st
 import requests
 from utils import scrape_movie_elements
 from utils_html import generate_html_movie_card
+from chatbot.chatbot_metadata import system_message
 
 imdb_home_url = "https://www.imdb.com/"
 
@@ -40,3 +41,49 @@ if st.button("Search"):
             st.error(f"Error retrieving results: {e}")
     else:
         st.error("Please enter a query before searching.")
+
+
+# ---------------------- Chatbot Right Side Panel ----------------------
+
+# Initialize chat panel state
+if "chat_open" not in st.session_state:
+    st.session_state.chat_open = False
+
+# Toggle chat panel
+if st.button("💬 Chat with us", key="chat_toggle"):
+    st.session_state.chat_open = not st.session_state.chat_open
+
+# Display chat panel
+if st.session_state.chat_open:
+    with st.sidebar:
+        st.header("💬 Chat Support")
+
+        if "messages" not in st.session_state:
+            st.session_state.messages = system_message
+
+        # Display chat history
+        for message in st.session_state.messages[1:]:
+            role, text = message
+            st.chat_message(role).write(text)
+
+        # Chat input
+        user_input = st.chat_input("Type your message...")
+        if user_input:
+            # Append user message
+            st.session_state.messages.append(("user", user_input))
+            try:
+                response = requests.post("http://127.0.0.1:8000/chat", json={"message": st.session_state.messages})
+
+                if response.status_code == 200:
+                    bot_response = response.json().get("response", "No response received.")
+                else:
+                    bot_response = f"Error: {response.status_code}"
+
+            except requests.exceptions.RequestException:
+                bot_response = "Error: Unable to connect to chat server."
+
+            # Append bot response to session state
+            st.session_state.messages.append(("assistant", bot_response))
+
+            # Force a rerun to display the new message
+            st.rerun()
