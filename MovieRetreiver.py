@@ -15,19 +15,3 @@ class MovieRetriever:
         
     def search(self, query, k=3):
         return self.vector_store.similarity_search_with_score(query, k=k)
-
-"""
-# Perform a similarity search
-movie_retriever = MovieRetriever()
-
-query = "a love story between a rich and poor"
-results = movie_retriever.search(query)
-
-# Display the results
-for i, result in enumerate(results):
-    print(f"Result {i + 1}:")
-    print(f"  Title: {result[0].metadata['Title']}")
-    print(f"  Description: {result[0].page_content}")
-    print(f"  Similarity Score: {1-result[1]}")
-    print()
-"""

@@ -1,12 +1,10 @@
 import requests
 from bs4 import BeautifulSoup
-import aiohttp
-import asyncio
-from tqdm import tqdm
 import time
 import ast
 from typing import List, Dict, Optional
 import pandas as pd
+from imdb import IMDb
 
 
 # Function to scrape movie description
@@ -22,18 +20,6 @@ def get_movie_description(movie_id: str) -> Optional[str]:
     except Exception as e:
         print(f"Error fetching description for {movie_id}: {e}")
         return None
-    
-
-
-# Function to scrape movie descriptions and update the dataframe
-def scrape_movie_descriptions(movie_ids: List[str]) -> Dict[str, str]:
-    descriptions = {}
-    for movie_id in movie_ids:
-        description = get_movie_description(movie_id)
-        if description:
-            descriptions[movie_id] = description
-        time.sleep(0.05)
-    return descriptions
 
 
 # convert lists in columns to strings
@@ -51,3 +37,14 @@ def process_list_columns(data_df: pd.DataFrame, columns_names: List[str]) -> pd.
         data_df[column_name] = data_df[column_name].apply(lambda x: ast.literal_eval(x) if pd.notna(x) else [])
     
     return data_df
+
+def scrape_movie_elements(movie_ids: List[str], element_keys: List = None) -> Dict[str, str]:
+    ia = IMDb()
+    all_elements = {}
+    for movie_id in movie_ids:
+        all_elements[movie_id] = {}
+        movie = ia.get_movie(movie_id[2:])
+        for key in element_keys:
+            all_elements[movie_id][key] = movie[key]
+
+    return all_elements
