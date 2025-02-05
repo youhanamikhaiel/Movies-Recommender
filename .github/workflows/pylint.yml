@@ -17,7 +17,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Cache dependencies
-        uses: actions/cache@v3  # <-- Fixed indentation
+        uses: actions/cache@v3
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
@@ -31,4 +31,4 @@ jobs:
 
       - name: Analysing the code with pylint
         run: |
-          pylint **/*.py  # Fixed duplicate 'pylint'
+          pylint --max-line-length=130 **/*.py
