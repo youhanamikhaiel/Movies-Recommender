@@ -1,5 +1,10 @@
+# pylint: disable=missing-module-docstring
+
 from langchain_ollama import ChatOllama
 
+"""
+Chatbot object that triggers the LLM to interacte with the user
+"""
 
 class Chatbot():
     def __init__(self, model_name="deepseek-r1:1.5b", temperature=0.6, top_p=0.9, max_new_tokens=1000, device = "mps"):
