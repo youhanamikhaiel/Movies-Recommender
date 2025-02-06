@@ -2,8 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import uvicorn
-from MovieRetreiver import MovieRetriever
-from chatbot.Chatbot import Chatbot
+from movie_retriever import MovieRetriever
+from chatbot.chatbot import Chatbot
 from utils import load_config
 
 from typing import List, Tuple, Any

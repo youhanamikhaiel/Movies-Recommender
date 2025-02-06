@@ -31,4 +31,4 @@ jobs:
 
       - name: Analysing the code with pylint
         run: |
-          pylint --max-line-length=130 **/*.py
+          pylint **/*.py
