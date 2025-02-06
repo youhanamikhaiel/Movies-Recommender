@@ -1,11 +1,11 @@
 import warnings
-warnings.filterwarnings("ignore")
-
 import pandas as pd
 from langchain_community.vectorstores import Chroma
 from langchain_community.embeddings import HuggingFaceEmbeddings
 
-from utils import load_config 
+from utils.utils import load_config
+
+warnings.filterwarnings("ignore")
 
 config = load_config()
 

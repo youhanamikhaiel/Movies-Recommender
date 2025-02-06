@@ -1,8 +1,8 @@
 import streamlit as st
 import requests
-from utils import scrape_movie_elements, load_config
-from utils_html import generate_html_movie_card
-from chatbot.chatbot_metadata import system_message
+from utils.utils import scrape_movie_elements, load_config
+from utils.utils_html import generate_html_movie_card
+from src.chatbot.chatbot_metadata import system_message
 
 config = load_config()
 
@@ -39,7 +39,9 @@ if st.session_state.chat_open:
             # Append user message
             st.session_state.messages.append(("user", user_input))
             try:
-                response = requests.post(api_url + config["api"]["chatbot_endpoint"], json={"message": st.session_state.messages})
+                response = requests.post(api_url + config["api"]["chatbot_endpoint"],
+                                         json={"message": st.session_state.messages},
+                                         timeout=10)
 
                 if response.status_code == 200:
                     bot_response = response.json().get("response", "No response received.")
@@ -69,13 +71,15 @@ query = st.text_input("Movie description query:")
 if st.button("Search"):
     if query:
         try:
-            response = requests.post(api_url + config["api"]["rag_endpoint"], json={"query": query})
+            response = requests.post(api_url + config["api"]["rag_endpoint"],
+                                     json={"query": query},
+                                     timeout=10)
             response.raise_for_status()
             data = response.json()
             results = data.get("results", [])
             if results:
                 st.session_state.search_results = []
-            
+
             if results:
                 for i, result in enumerate(results):
                     movie_elements = {}
@@ -84,8 +88,9 @@ if st.button("Search"):
                     movie_elements['score'] = result.get("sim_score", 0)
                     movie_elements['id'] = result.get("id", "Unknown")
                     movie_elements['imdb_url'] = imdb_home_url + f"title/{movie_elements['id']}"
-                    movie_elements['poster_url'] = scrape_movie_elements([movie_elements['id']], element_keys=["full-size cover url"])[movie_elements['id']]["full-size cover url"]
-                    
+                    movie_elements['poster_url'] = scrape_movie_elements([movie_elements['id']],
+                                                                          element_keys=["full-size cover url"])[movie_elements['id']]["full-size cover url"]
+
                     # Caching movie results for faster access
                     st.session_state.search_results.append(movie_elements)
             else:

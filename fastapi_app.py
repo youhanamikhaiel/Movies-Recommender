@@ -1,12 +1,12 @@
+# pylint: disable=missing-class-docstring
+from typing import List
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import uvicorn
-from movie_retriever import MovieRetriever
-from chatbot.chatbot import Chatbot
-from utils import load_config
-
-from typing import List, Tuple, Any
+from src.movie_retriever import MovieRetriever
+from src.chatbot.chatbot import Chatbot
+from utils.utils import load_config
 
 config = load_config()
 
