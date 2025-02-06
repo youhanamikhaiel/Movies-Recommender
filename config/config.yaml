@@ -1,0 +1,22 @@
+project_name: "Movie Recommender"
+device: "mps"
+chatbot_model:
+  name: "deepseek-r1:1.5b"
+  max_new_tokens: 1000
+  temperature: 0.6
+  top_p: 0.9
+encoder_model:
+  name: "sentence-transformers/all-mpnet-base-v2"
+  persist_directory: "chromadb"
+  collection_name: "movie_descriptions"
+data:
+  database_url: "http://localhost:27017"
+  database_name: "movies"
+  imdb_home_url: "https://www.imdb.com/"
+api:
+  host: "localhost"
+  port: 8000
+  chatbot_endpoint: "/chat"
+  rag_endpoint: "/search"
+ui:
+  streamlit_url: "http://localhost:8501"

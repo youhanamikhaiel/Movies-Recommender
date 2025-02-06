@@ -1,49 +1,16 @@
 import streamlit as st
 import requests
-from utils import scrape_movie_elements
+from utils import scrape_movie_elements, load_config
 from utils_html import generate_html_movie_card
 from chatbot.chatbot_metadata import system_message
 
-imdb_home_url = "https://www.imdb.com/"
+config = load_config()
 
-st.title("Movie Retriever")
-st.write("Enter a movie description to find similar movies.")
-
-# Input box for query
-query = st.text_input("Movie description query:")
-
-if st.button("Search"):
-    if query:
-        try:
-            response = requests.post("http://127.0.0.1:8000/search", json={"query": query})
-            response.raise_for_status()  # raise an exception for HTTP errors
-            data = response.json()
-            results = data.get("results", [])
-            
-            if results:
-                st.write("### Results")
-                # Iterate over each result and create a nicely styled box.
-                for i, result in enumerate(results):
-                    movie_elements = {}
-                    movie_elements['title'] = result.get("title", "Unknown")
-                    movie_elements['description'] = result.get("plot", "No description provided.")
-                    movie_elements['score'] = result.get("sim_score", 0)
-                    movie_elements['id'] = result.get("id", "Unknown")
-                    movie_elements['imdb_url'] = imdb_home_url + f"title/{movie_elements['id']}"
-                    movie_elements['poster_url'] = scrape_movie_elements([movie_elements['id']], element_keys=["full-size cover url"])[movie_elements['id']]["full-size cover url"]
-                    
-                    # Create an HTML card for each result
-                    card_html = generate_html_movie_card(movie_elements)
-                    st.markdown(card_html, unsafe_allow_html=True)
-            else:
-                st.info("No results found.")
-        except requests.RequestException as e:
-            st.error(f"Error retrieving results: {e}")
-    else:
-        st.error("Please enter a query before searching.")
+imdb_home_url = config["data"]["imdb_home_url"]
+api_url = "http://" + config["api"]["host"] + ":" + str(config["api"]["port"])
 
 
-# ---------------------- Chatbot Right Side Panel ----------------------
+# ---------------------- Chatbot Side Panel ----------------------
 
 # Initialize chat panel state
 if "chat_open" not in st.session_state:
@@ -72,7 +39,7 @@ if st.session_state.chat_open:
             # Append user message
             st.session_state.messages.append(("user", user_input))
             try:
-                response = requests.post("http://127.0.0.1:8000/chat", json={"message": st.session_state.messages})
+                response = requests.post(api_url + config["api"]["chatbot_endpoint"], json={"message": st.session_state.messages})
 
                 if response.status_code == 200:
                     bot_response = response.json().get("response", "No response received.")
@@ -87,3 +54,49 @@ if st.session_state.chat_open:
 
             # Force a rerun to display the new message
             st.rerun()
+
+# ---------------------- Movie Retriever Main Panel ----------------------
+
+st.title("Movie Retriever")
+st.write("Enter a movie description to find similar movies.")
+
+if "search_results" not in st.session_state:
+    st.session_state.search_results = []
+
+# Input box for query
+query = st.text_input("Movie description query:")
+
+if st.button("Search"):
+    if query:
+        try:
+            response = requests.post(api_url + config["api"]["rag_endpoint"], json={"query": query})
+            response.raise_for_status()
+            data = response.json()
+            results = data.get("results", [])
+            if results:
+                st.session_state.search_results = []
+            
+            if results:
+                for i, result in enumerate(results):
+                    movie_elements = {}
+                    movie_elements['title'] = result.get("title", "Unknown")
+                    movie_elements['description'] = result.get("plot", "No description provided.")
+                    movie_elements['score'] = result.get("sim_score", 0)
+                    movie_elements['id'] = result.get("id", "Unknown")
+                    movie_elements['imdb_url'] = imdb_home_url + f"title/{movie_elements['id']}"
+                    movie_elements['poster_url'] = scrape_movie_elements([movie_elements['id']], element_keys=["full-size cover url"])[movie_elements['id']]["full-size cover url"]
+                    
+                    # Caching movie results for faster access
+                    st.session_state.search_results.append(movie_elements)
+            else:
+                st.info("No results found.")
+        except requests.RequestException as e:
+            st.error(f"Error retrieving results: {e}")
+    else:
+        st.error("Please enter a query before searching.")
+
+if st.session_state.search_results:
+    st.write("### Results")
+    for movie in st.session_state.search_results:
+        card_html = generate_html_movie_card(movie)
+        st.markdown(card_html, unsafe_allow_html=True)

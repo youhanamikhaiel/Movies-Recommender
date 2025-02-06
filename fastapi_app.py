@@ -4,14 +4,17 @@ from pydantic import BaseModel
 import uvicorn
 from MovieRetreiver import MovieRetriever
 from chatbot.Chatbot import Chatbot
+from utils import load_config
 
 from typing import List, Tuple, Any
+
+config = load_config()
 
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8501"],
+    allow_origins=[config["ui"]["streamlit_url"]],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -24,12 +27,17 @@ class QueryRequest(BaseModel):
 class ChatRequest(BaseModel):
     message: List[List[str]]
 
+# Instantiate class objects to be used by the API
+movie_retriever = MovieRetriever(model_name=config["encoder_model"]["name"], device=config["device"])
+chatbot = Chatbot(model_name = config["chatbot_model"]["name"],
+                  device = config["device"],
+                  temperature = config["chatbot_model"]["temperature"],
+                  top_p = config["chatbot_model"]["top_p"],
+                  max_new_tokens = config["chatbot_model"]["max_new_tokens"]
+                  )
 
-movie_retriever = MovieRetriever()
-chatbot = Chatbot()
 
-
-@app.post("/search")
+@app.post(config["api"]["rag_endpoint"])
 def search_movies(query_request: QueryRequest):
     results = movie_retriever.search(query_request.query)
     formatted_results = []
@@ -42,7 +50,7 @@ def search_movies(query_request: QueryRequest):
         })
     return {"results": formatted_results}
 
-@app.post("/chat")
+@app.post(config["api"]["chatbot_endpoint"])
 async def chat(request: ChatRequest):
     user_message = request.message
 
@@ -53,4 +61,4 @@ async def chat(request: ChatRequest):
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host=config["api"]["host"], port=config["api"]["port"])

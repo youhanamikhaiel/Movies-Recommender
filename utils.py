@@ -1,10 +1,10 @@
 import requests
 from bs4 import BeautifulSoup
-import time
 import ast
 from typing import List, Dict, Optional
 import pandas as pd
 from imdb import IMDb
+import yaml
 
 
 # Function to scrape movie description
@@ -39,6 +39,10 @@ def process_list_columns(data_df: pd.DataFrame, columns_names: List[str]) -> pd.
     return data_df
 
 def scrape_movie_elements(movie_ids: List[str], element_keys: List = None) -> Dict[str, str]:
+    """
+    TODO: This function need to change to instead get information from the database, and if
+          not found it uses the API
+    """
     ia = IMDb()
     all_elements = {}
     for movie_id in movie_ids:
@@ -48,3 +52,9 @@ def scrape_movie_elements(movie_ids: List[str], element_keys: List = None) -> Di
             all_elements[movie_id][key] = movie[key]
 
     return all_elements
+
+
+def load_config(file_path="config/config.yaml"):
+    with open(file_path, "r") as f:
+        config = yaml.safe_load(f)
+    return config
