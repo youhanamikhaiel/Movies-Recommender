@@ -41,7 +41,7 @@ if st.session_state.chat_open:
             try:
                 response = requests.post(api_url + config["api"]["chatbot_endpoint"],
                                          json={"message": st.session_state.messages},
-                                         timeout=10)
+                                         timeout=60)
 
                 if response.status_code == 200:
                     bot_response = response.json().get("response", "No response received.")
