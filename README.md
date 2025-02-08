@@ -61,13 +61,15 @@ The user interface is built with **Streamlit**, enabling an interactive and user
 
 ### Prerequisites
 Ensure you have the following installed:
-- Python 3.11
-- FastAPI
-- Streamlit
+```
+- python 3.11
+- fastAPI
+- streamlit
 - langchain_community
-- SentenceTransformers
+- sentenceTransformers
 - Ollama (for Deepseek-R1 inference)
-- Chromadb as vector database
+- chromadb as vector database
+```
 
 ### Setup
 
