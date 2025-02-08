@@ -66,7 +66,7 @@ python == 3.11
 fastapi
 streamlit
 langchain_community
-sentenceTransformers
+sentence-transformers
 ollama (for Deepseek-R1 inference)
 chromadb as vector database
 ```
