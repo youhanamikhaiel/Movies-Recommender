@@ -34,7 +34,7 @@ The user interface is built with **Streamlit**, enabling an interactive and user
 
 ### 1. Minimum Viable Product (MVP) ✅
 - [x] Build a vector database and integrate RAG using a small dataset.
-- [x] Implement an LLM-powered chatbot for user interaction.
+- [x] Integrate an LLM-powered chatbot for user interaction.
 - [x] Develop FastAPI endpoints to handle API requests.
 - [x] Create a functional Streamlit UI.
 
