@@ -1,6 +1,7 @@
 import streamlit as st
 import requests
-from utils.utils import scrape_movie_elements, load_config
+from utils.utils_data import scrape_movie_elements
+from utils.utils import load_config
 from utils.utils_html import generate_html_movie_card
 from src.chatbot.chatbot_metadata import system_message
 

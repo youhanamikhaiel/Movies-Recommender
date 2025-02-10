@@ -1,9 +1,9 @@
 from typing import List, Dict, Optional
-from imdb import IMDb
-from bs4 import BeautifulSoup
+import ast
 import requests
 import pandas as pd
-import ast
+from imdb import IMDb
+from bs4 import BeautifulSoup
 
 ia = IMDb()
 
@@ -26,6 +26,14 @@ def get_movie_description(movie_id: str) -> Optional[str]:
         print(f"Error fetching description for {movie_id}: {e}")
         return None
 
+def scrape_movie_elements(movie_ids: List[str], element_keys: List = None) -> Dict[str, str]:
+    all_elements = {}
+    for movie_id in movie_ids:
+        all_elements[movie_id] = {}
+        movie = ia.get_movie(movie_id[2:])
+        for key in element_keys:
+            all_elements[movie_id][key] = movie[key]
+    return all_elements
 
 # convert lists in columns to strings
 def process_list_columns(data_df: pd.DataFrame, columns_names: List[str]) -> pd.DataFrame:
@@ -47,7 +55,7 @@ def process_list_columns(data_df: pd.DataFrame, columns_names: List[str]) -> pd.
     return data_df
 
 
-def get_movie_metadata(imdb_id: str, retrieved_keys: List[str]) -> Dict: 
+def get_movie_metadata(imdb_id: str, retrieved_keys: List[str]) -> Dict:
     movie = ia.get_movie(imdb_id)
     movie_dict = {}
     cast_and_crew = []
@@ -70,5 +78,5 @@ def get_movie_metadata(imdb_id: str, retrieved_keys: List[str]) -> Dict:
                                                     'role': person.currentRole['name'] if key == "cast" else ""})
         else:
             movie_dict[key] = movie[key]
-    
+
     return movie_dict, cast_and_crew, cast_and_crew_in_movies
